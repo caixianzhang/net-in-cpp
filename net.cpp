@@ -15,7 +15,8 @@
 
 using namespace std;
 
-TCP_client::TCP_client(string IP, int port, string eth)
+TCP_client::TCP_client(string IP, int port, string eth)
+
 {
 	//填写IP地址，端口号，通信网卡
 	this->IP = IP;
@@ -52,7 +53,8 @@ TCP_client::TCP_client(string IP, int port, string eth)
 	}
 }
 
-TCP_client::~TCP_client()
+TCP_client::~TCP_client()
+
 {
 	close(sockfd);
 }
@@ -328,7 +330,8 @@ char *UDP_Server::Get_Self_IP()
 	return inet_ntoa(sin.sin_addr);
 }
 
-UDP_Client::UDP_Client(string IP, int port, string eth)
+UDP_Client::UDP_Client(string IP, int port, string eth)
+
 {
 	this->IP = IP;
 	this->port = port;
@@ -378,7 +381,8 @@ char *UDP_Client::Get_Self_IP()
 	return inet_ntoa(sin.sin_addr);
 }
 
-Multicast_Send::Multicast_Send(string IP, int port, string eth, int ttl)
+Multicast_Send::Multicast_Send(string IP, int port, string eth, int ttl)
+
 {
 	this->IP = IP;
 	this->port = port;
@@ -435,7 +439,8 @@ char *Multicast_Send::Get_Self_IP()
 }
 
 
-Multicast_Recv::Multicast_Recv(string IP, int port, string eth, int buffersize, int loop)
+Multicast_Recv::Multicast_Recv(string IP, int port, string eth, int buffersize, int loop)
+
 {
 	this->IP= IP;
 	this->port = port;
