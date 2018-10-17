@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <string>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <net/if.h>
@@ -12,17 +13,16 @@
 
 #include "net.h"
 
-TCP_client::TCP_client(char *IP, int port, char *eth)
+using namespace std;
+
+TCP_client::TCP_client(string IP, int port, string eth)
 {
 	//填写IP地址，端口号，通信网卡
-	memset(this->IP, 0, sizeof(this->IP));
-	memcpy(this->IP, IP, sizeof(this->IP));
+	this->IP = IP;
 	this->port = port;
-	memset(this->eth, 0, sizeof(this->eth));
-	memcpy(this->eth, eth, strlen(eth));
+	this->eth = eth;
 
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
-	
 	if(sockfd == -1)
 	{
 		printf("TCP_client::TCP_client():fail to create sockfd!!! %m \n");
@@ -44,7 +44,7 @@ TCP_client::TCP_client(char *IP, int port, char *eth)
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(this->port);
 	
-	inet_pton(AF_INET, this->IP, &addr.sin_addr);
+	inet_pton(AF_INET, this->IP.c_str(), &addr.sin_addr);
 	
 	if(connect(sockfd, (struct sockaddr *)&addr, sizeof(addr)) == -1)
 	{
@@ -62,7 +62,7 @@ char *TCP_client::Get_Self_IP()
 	struct ifreq ifr;
 	struct sockaddr_in sin;
 	int fd = socket(AF_INET, SOCK_DGRAM, 0);
-	strncpy(ifr.ifr_name, eth, strlen(eth) + 1);
+	strncpy(ifr.ifr_name, eth.c_str(), eth.size());
 	ioctl(fd, SIOCGIFADDR, &ifr);
 	memcpy(&sin, &ifr.ifr_addr, sizeof(sin));
 	close(fd);
@@ -134,7 +134,7 @@ int TCP_client::Recv(unsigned char *recv_buffer, int len)
 	return recvlen;
 }
 
-TCP_Server_Listen::TCP_Server_Listen(int port, char *eth)
+TCP_Server_Listen::TCP_Server_Listen(int port, string eth)
 {
 	sockfd = socket(AF_INET,SOCK_STREAM, 0);
 	if(sockfd == -1)
@@ -152,8 +152,8 @@ TCP_Server_Listen::TCP_Server_Listen(int port, char *eth)
 	}
 
 	this->port = port;
-	memset(this->eth, 0, sizeof(this->eth));
-	memcpy(this->eth, eth, strlen(eth));
+	this->eth = eth;
+	
 	memset(&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(port);
@@ -189,7 +189,7 @@ char *TCP_Server_Listen::Get_Self_IP()
 	struct ifreq ifr;
 	struct sockaddr_in sin;
 	int fd = socket(AF_INET, SOCK_DGRAM, 0);
-	strncpy(ifr.ifr_name, eth, strlen(eth) + 1);
+	strncpy(ifr.ifr_name, eth.c_str(), eth.size());
 	ioctl(fd, SIOCGIFADDR, &ifr);
 	memcpy(&sin, &ifr.ifr_addr, sizeof(sin));
 	close(fd);
@@ -281,11 +281,10 @@ int TCP_Server_Accept::Recv(unsigned char *recv_buffer, int len)
 }
 
 
-UDP_Server::UDP_Server(int port, char *eth)
+UDP_Server::UDP_Server(int port, string eth)
 {
 	this->port = port;
-	memset(this->eth, 0, sizeof(this->eth));
-	memcpy(this->eth, eth, strlen(eth));
+	this->eth = eth;
 	
 	sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 	if(sockfd == -1)
@@ -322,20 +321,18 @@ char *UDP_Server::Get_Self_IP()
 	struct ifreq ifr;
 	struct sockaddr_in sin;
 	int fd = socket(AF_INET, SOCK_DGRAM, 0);
-	strncpy(ifr.ifr_name, eth, strlen(eth) + 1);
+	strncpy(ifr.ifr_name, eth.c_str(), eth.size());
 	ioctl(fd, SIOCGIFADDR, &ifr);
 	memcpy(&sin, &ifr.ifr_addr, sizeof(sin));
 	close(fd);
 	return inet_ntoa(sin.sin_addr);
 }
 
-UDP_Client::UDP_Client(char *IP, int port, char *eth)
+UDP_Client::UDP_Client(string IP, int port, string eth)
 {
-	memset(this->IP, 0, sizeof(this->IP));
-	memcpy(this->IP, IP, sizeof(this->IP));
+	this->IP = IP;
 	this->port = port;
-	memset(this->eth, 0, sizeof(this->eth));
-	memcpy(this->eth, eth, strlen(eth));
+	this->eth = eth;
 	
 	sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 	if(sockfd == -1)
@@ -345,7 +342,7 @@ UDP_Client::UDP_Client(char *IP, int port, char *eth)
 	
 	addr.sin_family = AF_INET;	
 	addr.sin_port = htons(this->port);
-	inet_pton(AF_INET, this->IP, &addr.sin_addr);
+	inet_pton(AF_INET, this->IP.c_str(), &addr.sin_addr);
 	
 	struct sockaddr_in local;
 	memset(&local, 0, sizeof(local));
@@ -374,21 +371,18 @@ char *UDP_Client::Get_Self_IP()
 	struct ifreq ifr;
 	struct sockaddr_in sin;
 	int fd = socket(AF_INET, SOCK_DGRAM, 0);
-	strncpy(ifr.ifr_name, eth, strlen(eth) + 1);
+	strncpy(ifr.ifr_name, eth.c_str(), eth.size());
 	ioctl(fd, SIOCGIFADDR, &ifr);
 	memcpy(&sin, &ifr.ifr_addr, sizeof(sin));
 	close(fd);
 	return inet_ntoa(sin.sin_addr);
 }
 
-Multicast_Send::Multicast_Send(char *IP, int port, char *eth, int ttl)
+Multicast_Send::Multicast_Send(string IP, int port, string eth, int ttl)
 {
-	memset(this->IP, 0, sizeof(this->IP));
-	memcpy(this->IP, IP, sizeof(this->IP));
+	this->IP = IP;
 	this->port = port;
-	memset(this->eth, 0, sizeof(this->eth));
-	memcpy(this->eth, eth, strlen(eth));
-	
+	this->eth = eth;
 	this->ttl = ttl;
 	
 	sockfd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -403,7 +397,7 @@ Multicast_Send::Multicast_Send(char *IP, int port, char *eth, int ttl)
 	
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(this->port);
-	inet_pton(AF_INET, this->IP, &addr.sin_addr);
+	inet_pton(AF_INET, this->IP.c_str(), &addr.sin_addr);
 	
 	struct sockaddr_in local;
 	memset(&local, 0, sizeof(local));
@@ -433,7 +427,7 @@ char *Multicast_Send::Get_Self_IP()
 	struct ifreq ifr;
 	struct sockaddr_in sin;
 	int fd = socket(AF_INET, SOCK_DGRAM, 0);
-	strncpy(ifr.ifr_name, eth, strlen(eth) + 1);
+	strncpy(ifr.ifr_name, eth.c_str(), eth.size());
 	ioctl(fd, SIOCGIFADDR, &ifr);
 	memcpy(&sin, &ifr.ifr_addr, sizeof(sin));
 	close(fd);
@@ -441,14 +435,11 @@ char *Multicast_Send::Get_Self_IP()
 }
 
 
-Multicast_Recv::Multicast_Recv(char *IP, int port, char *eth, int buffersize, int loop)
+Multicast_Recv::Multicast_Recv(string IP, int port, string eth, int buffersize, int loop)
 {
-	memset(this->IP, 0, sizeof(this->IP));
-	memcpy(this->IP, IP, sizeof(this->IP));
+	this->IP= IP;
 	this->port = port;
-	memset(this->eth, 0, sizeof(this->eth));
-	memcpy(this->eth, eth, strlen(eth));
-	
+	this->eth = eth;
 	this->buffersize = buffersize;
 	this->loop = loop;
 
@@ -472,7 +463,7 @@ Multicast_Recv::Multicast_Recv(char *IP, int port, char *eth, int buffersize, in
 	memset(&addr, 0, sizeof(addr));
 	addr.sin_family = AF_INET;
 	addr.sin_port = htons(this->port);
-	inet_pton(AF_INET, this->IP, &addr.sin_addr);
+	inet_pton(AF_INET, this->IP.c_str(), &addr.sin_addr);
 
 	if(bind(sockfd, (struct sockaddr *)&addr, sizeof(addr)) == -1)
 	{
@@ -482,7 +473,7 @@ Multicast_Recv::Multicast_Recv(char *IP, int port, char *eth, int buffersize, in
 	struct ip_mreq mreq;
 	memset(&mreq, 0, sizeof(mreq));
 	mreq.imr_interface.s_addr = inet_addr(Get_Self_IP());
-	inet_pton(AF_INET, this->IP, &mreq.imr_multiaddr);
+	inet_pton(AF_INET, this->IP.c_str(), &mreq.imr_multiaddr);
 	setsockopt(sockfd, IPPROTO_IP, IP_ADD_MEMBERSHIP, &mreq, sizeof(mreq));
 }
 
@@ -501,7 +492,7 @@ char *Multicast_Recv::Get_Self_IP()
 	struct ifreq ifr;
 	struct sockaddr_in sin;
 	int fd = socket(AF_INET, SOCK_DGRAM, 0);
-	strncpy(ifr.ifr_name, eth, strlen(eth) + 1);
+	strncpy(ifr.ifr_name, eth.c_str(), eth.size());
 	ioctl(fd, SIOCGIFADDR, &ifr);
 	memcpy(&sin, &ifr.ifr_addr, sizeof(sin));
 	close(fd);

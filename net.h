@@ -3,6 +3,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <string>
 #include <unistd.h>
 #include <sys/socket.h>
 #include <net/if.h>
@@ -13,20 +14,22 @@
 #include <errno.h>
 #include <netinet/tcp.h>
 
+using namespace std;
+
 class TCP_client{
 	private:
 		//欲连接的服务器IP
-		char IP[40];
+		string IP;
 		//欲连接的服务端口
 		int port;
 		//地址结构体
 		struct sockaddr_in addr;
 		//通信网卡
-		char eth[40];
+		string eth;
 		//连接成功后的文件描述符
 		int sockfd;
 	public:
-		TCP_client(char *IP, int port, char *eth);
+		TCP_client(string IP, int port, string eth);
 		~TCP_client();
 		char *Get_Self_IP();
 		void Set_Sock_Noblock();
@@ -40,10 +43,10 @@ class TCP_Server_Listen{
 		int port;
 		int backlog;
 		struct sockaddr_in addr;
-		char eth[40];
+		string eth;
 		int sockfd;
 	public:
-		TCP_Server_Listen(int Port, char *eth);
+		TCP_Server_Listen(int port, string eth);
 		~TCP_Server_Listen();
 		int Get_Listen_Fd();
 		char *Get_Self_IP();
@@ -53,7 +56,6 @@ class TCP_Server_Accept{
 	private:
 		int listen_fd;
 		int sockfd;
-		
 		struct sockaddr_in addr;
 		socklen_t len;
 	public:
@@ -70,10 +72,10 @@ class UDP_Server{
 		int port;
 		struct sockaddr_in addr;
 		socklen_t addrlen;
-		char eth[40];
+		string eth;
 		int sockfd;
 	public:
-		UDP_Server(int port, char *eth);
+		UDP_Server(int port, string eth);
 		~UDP_Server();
 		int Recv(unsigned char *recv_buffer, int len);
 		char *Get_Self_IP();
@@ -81,14 +83,14 @@ class UDP_Server{
 
 class UDP_Client{
 	private:
-		char IP[40];
+		string IP;
 		int port;
 		struct sockaddr_in addr;
 		socklen_t addrlen;
-		char eth[40];
+		string eth;
 		int sockfd;
 	public:
-		UDP_Client(char *IP, int port, char *eth);
+		UDP_Client(string IP, int port, string eth);
 		~UDP_Client();
 		int Send(unsigned char *send_buffer, int len);
 		char *Get_Self_IP();
@@ -97,14 +99,14 @@ class UDP_Client{
 class Multicast_Send{
 	private:
 		int ttl;
-		char IP[40];
+		string IP;
 		int port;
 		struct sockaddr_in addr;
 		socklen_t addrlen;
-		char eth[40];
+		string eth;
 		int sockfd;
 	public:
-		Multicast_Send(char *IP, int port, char *eth, int ttl);
+		Multicast_Send(string IP, int port, string eth, int ttl);
 		~Multicast_Send();
 		int Send(unsigned char *send_buffer, int len);
 		char *Get_Self_IP();
@@ -115,14 +117,14 @@ class Multicast_Recv{
 		int reuse;
 		int loop;
 		int buffersize;
-		char IP[40];
+		string IP;
 		int port;
 		struct sockaddr_in addr;
 		socklen_t addrlen;
-		char eth[40];
+		string eth;
 		int sockfd;
 	public:
-		Multicast_Recv(char *IP, int port, char *eth, int buffersize, int loop);
+		Multicast_Recv(string IP, int port, string eth, int buffersize, int loop);
 		~Multicast_Recv();
 		int Recv(unsigned char *recv_buffer, int len);
 		char *Get_Self_IP();
